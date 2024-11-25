@@ -1,51 +1,49 @@
 #include <iostream>
 #include <stack>
 #include <string>
-
 using namespace std;
 
-// Function to check if the string is accepted by the PDA
 bool simulatePDA(const string& input) {
-    stack<char> st;
-    st.push('Z'); // Push initial stack symbol
+    stack<char> st;         // Stack for the PDA
+    string state = "q0";    // Start state
 
-    int i = 0;
-    while (i < input.length()) {
-        char current = input[i];
-        
-        if (current == 'a') {
-            st.push('A'); // Push 'A' for each 'a'
-        } else if (current == 'b') {
-            if (!st.empty() && st.top() == 'A') {
-                st.pop(); // Pop 'A' for each 'b'
+    for (char c : input) {
+        if (state == "q0") {
+            if (c == 'a') {
+                st.push('a'); // Push 'a' onto the stack
+            } else if (c == 'b') {
+                if (!st.empty()) {
+                    state = "q1"; // Transition to state q1
+                    st.pop();     // Pop 'a' for the first 'b'
+                } else {
+                    return false; // Rejected: unmatched 'b'
+                }
             } else {
-                return false; // If stack is empty or top is not 'A', reject
+                return false; // Rejected: Invalid character
             }
-        } else {
-            return false; // Reject if character is not 'a' or 'b'
+        } else if (state == "q1") {
+            if (c == 'b') {
+                if (!st.empty()) {
+                    st.pop(); // Pop 'a' for each 'b'
+                } else {
+                    return false; // Rejected: unmatched 'b'
+                }
+            } else {
+                return false; // Rejected: 'a' not allowed in state q1
+            }
         }
-        i++;
     }
 
-    // After processing input, check if stack has only the initial symbol
-    return st.size() == 1 && st.top() == 'Z';
+    // Accepted if in state q1 and stack is empty
+    return state == "q1" && st.empty();
 }
 
 int main() {
-    string input;
-    cout << "Enter a string (only 'a' and 'b'): ";
-    cin >> input;
+    string testCases[] = {"ab", "aabb", "aaabbb", "aaaabbbb", "abb", "aab", "ba", ""};
 
-    // Check if input contains at least one 'a' and 'b'
-    if (input.empty() || input.find('a') == string::npos || input.find('b') == string::npos) {
-        cout << "Rejected: Input must contain at least one 'a' and one 'b'.\n";
-        return 0;
-    }
-
-    if (simulatePDA(input)) {
-        cout << "Accepted: The string belongs to the language {a^n b^n | n > 0}.\n";
-    } else {
-        cout << "Rejected: The string does not belong to the language.\n";
+    for (const string& test : testCases) {
+        cout << "Input: \"" << test << "\" -> "
+             << (simulatePDA(test) ? "Accepted" : "Rejected") << endl;
     }
 
     return 0;
