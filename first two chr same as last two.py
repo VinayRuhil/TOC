@@ -1,19 +1,23 @@
-def simulate_fa(input_string):
-    # Ensure the string has a minimum length of 4
-    if len(input_string) < 4:
-        return False
+#include <iostream>
+#include <string>
+using namespace std;
 
-    # Process the string
-    first_two = input_string[:2]  # First two characters
-    last_two = input_string[-2:]  # Last two characters
+bool simulate_FA(const string& input_string) {
+    if (input_string.length() < 4) {
+        return false; // Rejected if length is less than 4
+    }
+    return (input_string[0] == input_string[input_string.length() - 2] && 
+            input_string[1] == input_string[input_string.length() - 1]);
+}
 
-    # Check if first two match the last two
-    return first_two == last_two
+int main() {
+    string test_strings[] = {"aabb", "abab", "baba", "abccba", "abcd", "bbaa"};
 
-# Take input from the user
-user_input = input("Enter a string over {a, b}: ")
-if all(char in {'a', 'b'} for char in user_input):
-    result = simulate_fa(user_input)
-    print(f"Input: {user_input}, Accepts: {result}")
-else:
-    print("Invalid input! Please enter a string containing only 'a' and 'b'.")
+    cout << "Strings where the first two characters are the same as the last two:" << endl;
+
+    for (const string& test : test_strings) {
+        cout << "Input: " << test << " => " << (simulate_FA(test) ? "Accepted" : "Rejected") << endl;
+    }
+
+    return 0;
+}
