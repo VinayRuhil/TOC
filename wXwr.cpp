@@ -1,53 +1,46 @@
 #include <iostream>
 #include <stack>
 #include <string>
-
 using namespace std;
 
-// Function to simulate the PDA
-bool simulatePDA(const string& input) {
-    stack<char> st;
-    int n = input.size();
-    int i = 0;
+bool simulateMachine(const string& input) {
+    stack<char> st; // Stack to store 'w'
+    size_t len = input.length();
+    size_t posX = input.find('X');
 
-    // Read w and push to stack
-    while (i < n && input[i] != 'X') {
+    if (posX == string::npos) {
+        return false; // No 'X' found, invalid string
+    }
+
+    // Process the first part (w)
+    for (size_t i = 0; i < posX; ++i) {
         if (input[i] == 'a' || input[i] == 'b') {
-            st.push(input[i]);
+            st.push(input[i]); // Push characters of w onto the stack
         } else {
             return false; // Invalid character
         }
-        i++;
     }
 
-    // Check if X is present
-    if (i == n || input[i] != 'X') {
-        return false;
-    }
-    i++; // Skip the X
-
-    // Read w^r and pop from stack
-    while (i < n) {
-        if (st.empty() || (input[i] != st.top())) {
-            return false; // Mismatch or stack empty prematurely
+    // Process the second part (w^R)
+    for (size_t i = posX + 1; i < len; ++i) {
+        if (st.empty() || input[i] != st.top()) {
+            return false; // Mismatch between w and w^R
         }
-        st.pop();
-        i++;
+        st.pop(); 
     }
 
-    // Accept if stack is empty
+    // String is accepted if the stack is empty after processing
     return st.empty();
 }
 
 int main() {
-    string input;
-    cout << "Enter a string (format wXwr where w is over {a, b}): ";
-    cin >> input;
+    string testCases[] = {
+        "aXa", "abXba", "abbXbba", "aabbXbbaa", "abXab", "aX", "X", "abXa"
+    };
 
-    if (simulatePDA(input)) {
-        cout << "Accepted: The string belongs to the language {wXwr | w is any string over {a, b}}.\n";
-    } else {
-        cout << "Rejected: The string does not belong to the language.\n";
+    for (const string& test : testCases) {
+        cout << "Input: \"" << test << "\" -> "
+             << (simulateMachine(test) ? "Accepted" : "Rejected") << endl;
     }
 
     return 0;
